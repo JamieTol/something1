@@ -1,98 +1,759 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Blox Fruits Current Stock</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #f4f4f9;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-    }
-    .container {
-      background: #fff;
-      border-radius: 8px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      padding: 20px;
-      width: 80%;
-      max-width: 600px;
-      text-align: center;
-    }
-    h1 {
-      color: #333;
-    }
-    #stockList {
-      list-style-type: none;
-      padding: 0;
-    }
-    #stockList li {
-      background: #e0e0e0;
-      margin: 10px 0;
-      padding: 10px;
-      border-radius: 5px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    #stockList li span {
-      font-weight: bold;
-    }
-    .loading {
-      font-size: 18px;
-      color: #888;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Musical Aid</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            transition: background-color 0.3s, color 0.3s;
+            padding: 20px;
+        }
+
+        body.light-mode {
+            background-color: #ffffff;
+            color: #000000;
+        }
+
+        body.dark-mode {
+            background-color: #00001e;
+            color: #ffffff;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #1e90ff, #00bfff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 2.5em;
+        }
+
+        .subtitle {
+            text-align: center;
+            margin-bottom: 30px;
+            font-style: italic;
+            opacity: 0.7;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        label {
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+
+        select, button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        select {
+            background-color: #1e90ff;
+            color: white;
+        }
+
+        button {
+            background-color: #1e90ff;
+            color: white;
+        }
+
+        button:hover, select:hover {
+            background-color: #4169e1;
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .play-controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .play-button {
+            background-color: #28a745;
+            font-size: 1.1em;
+        }
+
+        .play-button:hover {
+            background-color: #218838;
+        }
+
+        .piano-container {
+            margin: 30px 0;
+            background-color: rgba(30, 144, 255, 0.1);
+            padding: 30px;
+            border-radius: 10px;
+            overflow-x: auto;
+        }
+
+        .piano {
+            display: flex;
+            justify-content: center;
+            position: relative;
+            height: 200px;
+            margin: 20px auto;
+            width: fit-content;
+        }
+
+        .white-key {
+            width: 50px;
+            height: 200px;
+            background-color: white;
+            border: 2px solid #333;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+            padding-bottom: 10px;
+            font-weight: bold;
+            color: #333;
+            cursor: pointer;
+            transition: background-color 0.1s;
+            user-select: none;
+        }
+
+        .white-key:hover {
+            background-color: #e6f7ff;
+        }
+
+        .white-key:active {
+            background-color: #cce5ff;
+        }
+
+        .white-key.highlighted {
+            background-color: #00ccff;
+        }
+
+        .white-key.root {
+            background-color: #0064ff;
+            color: white;
+        }
+
+        .white-key.playing {
+            background-color: #ffff00 !important;
+            transform: scale(0.98);
+        }
+
+        .octave-marker {
+            font-size: 0.7em;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .black-key {
+            width: 35px;
+            height: 120px;
+            background-color: black;
+            color: white;
+            position: absolute;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            padding-bottom: 5px;
+            font-size: 0.8em;
+            z-index: 2;
+            cursor: pointer;
+            transition: background-color 0.1s;
+            user-select: none;
+        }
+
+        .black-key:hover {
+            background-color: #333;
+        }
+
+        .black-key:active {
+            background-color: #555;
+        }
+
+        .black-key.highlighted {
+            background-color: #00ccff;
+        }
+
+        .black-key.root {
+            background-color: #0064ff;
+        }
+
+        .black-key.playing {
+            background-color: #ffff00 !important;
+            transform: scale(0.98);
+        }
+
+        .info-panel {
+            background-color: rgba(30, 144, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .info-row {
+            margin: 15px 0;
+            padding: 10px;
+            background-color: rgba(255, 255, 255, 0.05);
+            border-radius: 5px;
+        }
+
+        .info-label {
+            font-weight: bold;
+            color: #1e90ff;
+            margin-right: 10px;
+        }
+
+        .info-value {
+            font-size: 1.1em;
+        }
+
+        .dark-mode .white-key {
+            background-color: #f0f0f0;
+        }
+
+        .dark-mode .white-key.highlighted {
+            background-color: #00ccff !important;
+        }
+
+        .dark-mode .white-key.root {
+            background-color: #0064ff !important;
+            color: white !important;
+        }
+
+        .dark-mode .piano-container,
+        .dark-mode .info-panel {
+            background-color: rgba(0, 0, 50, 0.5);
+        }
+
+        .octave-display {
+            text-align: center;
+            font-size: 1.5em;
+            margin: 20px 0;
+            font-weight: bold;
+        }
+    </style>
 </head>
-<body>
+<body class="dark-mode">
+    <div class="container">
+        <h1>MUSICAL AID</h1>
+        <p class="subtitle">Created by: Jamie Tolhurst</p>
 
-  <div class="container">
-    <h1>Blox Fruits Current Stock</h1>
-    <p class="loading">Loading current stock...</p>
-    <ul id="stockList"></ul>
-  </div>
+        <div class="controls">
+            <div class="control-group">
+                <label for="keySelect">Select Key:</label>
+                <select id="keySelect">
+                    <option value="C">C</option>
+                    <option value="C#">C#</option>
+                    <option value="D">D</option>
+                    <option value="Eb">Eb</option>
+                    <option value="E">E</option>
+                    <option value="F">F</option>
+                    <option value="F#">F#</option>
+                    <option value="G">G</option>
+                    <option value="Ab">Ab</option>
+                    <option value="A">A</option>
+                    <option value="Bb">Bb</option>
+                    <option value="B">B</option>
+                </select>
+            </div>
 
-  <script>
-    async function fetchStockData() {
-      try {
-        const response = await fetch('https://blox-fruits.fandom.com/wiki/Blox_Fruits_%22Stock%22');
-        const text = await response.text();
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(text, 'text/html');
-        const stockItems = doc.querySelectorAll('.wikitable tbody tr');
+            <div class="control-group">
+                <label for="scaleSelect">Select Scale/Chord:</label>
+                <select id="scaleSelect">
+                    <option value="majorScale">Major Scale</option>
+                    <option value="minorScale">Minor Scale</option>
+                    <option value="majorChord">Major Chord</option>
+                    <option value="minorChord">Minor Chord</option>
+                    <option value="majorPentatonic">Major Pentatonic</option>
+                    <option value="minorPentatonic">Minor Pentatonic</option>
+                </select>
+            </div>
 
-        const stockList = document.getElementById('stockList');
-        stockList.innerHTML = ''; // Clear loading text
+            <div class="control-group">
+                <label for="octaveSelect">Base Octave:</label>
+                <select id="octaveSelect">
+                    <option value="2">2</option>
+                    <option value="3" selected>3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                    <option value="6">6</option>
+                </select>
+            </div>
 
-        stockItems.forEach(row => {
-          const cells = row.querySelectorAll('td');
-          if (cells.length > 1) {
-            const fruitName = cells[0].textContent.trim();
-            const fruitPrice = cells[1].textContent.trim();
-            const fruitStatus = cells[2].textContent.trim();
+            <button id="darkModeToggle">Toggle Dark Mode</button>
+        </div>
 
-            const listItem = document.createElement('li');
-            listItem.innerHTML = `
-              <span>${fruitName}</span>
-              <span>${fruitPrice}</span>
-              <span>${fruitStatus}</span>
+        <div class="play-controls">
+            <button id="playButton" class="play-button">▶ Play Scale/Chord</button>
+        </div>
+
+        <div class="piano-container">
+            <div class="octave-display" id="octaveDisplay">Octave: 3</div>
+            <div class="piano" id="piano"></div>
+        </div>
+
+        <div class="info-panel" id="infoPanel"></div>
+    </div>
+
+    <script>
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        let isPlaying = false;
+
+        const scales = {
+            majorScales: {
+                "C": ["C", "D", "E", "F", "G", "A", "B"],
+                "C#": ["C#", "D#", "F", "F#", "G#", "A#", "C"],
+                "D": ["D", "E", "F#", "G", "A", "B", "C#"],
+                "Eb": ["Eb", "F", "G", "Ab", "Bb", "C", "D"],
+                "E": ["E", "F#", "G#", "A", "B", "C#", "D#"],
+                "F": ["F", "G", "A", "Bb", "C", "D", "E"],
+                "F#": ["F#", "G#", "A#", "B", "C#", "D#", "F"],
+                "G": ["G", "A", "B", "C", "D", "E", "F#"],
+                "Ab": ["Ab", "Bb", "C", "Db", "Eb", "F", "G"],
+                "A": ["A", "B", "C#", "D", "E", "F#", "G#"],
+                "Bb": ["Bb", "C", "D", "Eb", "F", "G", "A"],
+                "B": ["B", "C#", "D#", "E", "F#", "G#", "A#"]
+            },
+            minorScales: {
+                "C": ["C", "D", "Eb", "F", "G", "Ab", "Bb"],
+                "C#": ["C#", "D#", "E", "F#", "G#", "A", "B"],
+                "D": ["D", "E", "F", "G", "A", "Bb", "C"],
+                "Eb": ["Eb", "F", "Gb", "Ab", "Bb", "B", "Db"],
+                "E": ["E", "F#", "G", "A", "B", "C", "D"],
+                "F": ["F", "G", "Ab", "Bb", "C", "Db", "Eb"],
+                "F#": ["F#", "G#", "A", "B", "C#", "D", "E"],
+                "G": ["G", "A", "Bb", "C", "D", "Eb", "F"],
+                "Ab": ["Ab", "Bb", "B", "Db", "Eb", "E", "Gb"],
+                "A": ["A", "B", "C", "D", "E", "F", "G"],
+                "Bb": ["Bb", "C", "Db", "Eb", "F", "Gb", "Ab"],
+                "B": ["B", "C#", "D", "E", "F#", "G", "A"]
+            },
+            majorPentatonics: {
+                "C": ["C", "D", "E", "G", "A"],
+                "C#": ["C#", "D#", "F", "G#", "A#"],
+                "D": ["D", "E", "F#", "A", "B"],
+                "Eb": ["Eb", "F", "G", "Bb", "C"],
+                "E": ["E", "F#", "G#", "B", "C#"],
+                "F": ["F", "G", "A", "C", "D"],
+                "F#": ["F#", "G#", "A#", "C#", "D#"],
+                "G": ["G", "A", "B", "D", "E"],
+                "Ab": ["Ab", "Bb", "C", "Eb", "F"],
+                "A": ["A", "B", "C#", "E", "F#"],
+                "Bb": ["Bb", "C", "D", "F", "G"],
+                "B": ["B", "C#", "D#", "F#", "G#"]
+            },
+            minorPentatonics: {
+                "C": ["C", "Eb", "F", "G", "Bb"],
+                "C#": ["C#", "E", "F#", "G#", "B"],
+                "D": ["D", "F", "G", "A", "C"],
+                "Eb": ["Eb", "Gb", "Ab", "Bb", "Db"],
+                "E": ["E", "G", "A", "B", "D"],
+                "F": ["F", "Ab", "Bb", "C", "Eb"],
+                "F#": ["F#", "A", "B", "C#", "E"],
+                "G": ["G", "Bb", "C", "D", "F"],
+                "Ab": ["Ab", "B", "Db", "Eb", "Gb"],
+                "A": ["A", "C", "D", "E", "G"],
+                "Bb": ["Bb", "Db", "Eb", "F", "Ab"],
+                "B": ["B", "D", "E", "F#", "A"]
+            }
+        };
+
+        const noteFrequencies = {
+            'C': 261.63, 'C#': 277.18, 'Db': 277.18,
+            'D': 293.66, 'D#': 311.13, 'Eb': 311.13,
+            'E': 329.63,
+            'F': 349.23, 'F#': 369.99, 'Gb': 369.99,
+            'G': 392.00, 'G#': 415.30, 'Ab': 415.30,
+            'A': 440.00, 'A#': 466.16, 'Bb': 466.16,
+            'B': 493.88
+        };
+
+        const noteOrder = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+        const noteOrderFlat = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B'];
+        
+        function normalizeNote(note) {
+            const map = {'Db': 'C#', 'Eb': 'D#', 'Gb': 'F#', 'Ab': 'G#', 'Bb': 'A#'};
+            return map[note] || note;
+        }
+
+        function getNoteIndex(note) {
+            const normalized = normalizeNote(note);
+            return noteOrder.indexOf(normalized);
+        }
+
+        function getFrequency(note, octave) {
+            const baseFreq = noteFrequencies[note];
+            const octaveMultiplier = Math.pow(2, octave - 4);
+            return baseFreq * octaveMultiplier;
+        }
+
+        function playNote(note, octave, duration = 0.5) {
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+
+            oscillator.frequency.value = getFrequency(note, octave);
+            oscillator.type = 'triangle';
+
+            gainNode.gain.setValueAtTime(0.7, audioContext.currentTime);
+            gainNode.gain.linearRampToValueAtTime(0.001, audioContext.currentTime + duration);
+
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + duration);
+
+            // Highlight both normalized and non-normalized notes
+            const normalized = normalizeNote(note);
+            const selectors = [
+                `.white-key[data-note="${note}"][data-octave="${octave}"]`,
+                `.black-key[data-note="${note}"][data-octave="${octave}"]`,
+                `.white-key[data-note="${normalized}"][data-octave="${octave}"]`,
+                `.black-key[data-note="${normalized}"][data-octave="${octave}"]`
+            ];
+            const keyElements = document.querySelectorAll(selectors.join(','));
+            keyElements.forEach(keyElement => {
+                keyElement.classList.add('playing');
+            });
+            setTimeout(() => {
+                keyElements.forEach(keyElement => {
+                    keyElement.classList.remove('playing');
+                });
+            }, duration * 1000);
+        }
+
+        function playChordNotes(notes, baseOctave, duration = 1.5) {
+            const rootIndex = getNoteIndex(notes[0]);
+            
+            notes.forEach((note, i) => {
+                const noteIndex = getNoteIndex(note);
+                let octave = baseOctave;
+                
+                if (i > 0) {
+                    const prevIndex = getNoteIndex(notes[i-1]);
+                    if (noteIndex <= prevIndex) {
+                        octave = baseOctave + 1;
+                    }
+                }
+                
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.frequency.value = getFrequency(note, octave);
+                oscillator.type = 'sine';
+                
+                gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + duration);
+
+                const keyElements = document.querySelectorAll(`[data-note="${note}"][data-octave="${octave}"]`);
+                keyElements.forEach(keyElement => {
+                    keyElement.classList.add('playing');
+                    setTimeout(() => keyElement.classList.remove('playing'), duration * 1000);
+                });
+            });
+        }
+
+        async function playScale(notes, baseOctave) {
+            if (isPlaying) return;
+            isPlaying = true;
+
+            const button = document.getElementById('playButton');
+            button.textContent = '⏸ Playing...';
+            button.disabled = true;
+
+            // Track notes/octaves for correct playback order
+            let octaveTracker = [];
+            let currentOctave = baseOctave;
+            let prevIndex = getNoteIndex(notes[0]);
+            for (let i = 0; i < notes.length; i++) {
+                const note = notes[i];
+                const noteIndex = getNoteIndex(note);
+                if (i > 0 && noteIndex <= prevIndex) {
+                    currentOctave++;
+                }
+                octaveTracker.push({note: normalizeNote(note), octave: currentOctave});
+                prevIndex = noteIndex;
+            }
+            // Always add the root note (normalized) at baseOctave+1
+            octaveTracker.push({note: normalizeNote(notes[0]), octave: baseOctave + 1});
+
+            // Ascending
+            for (let i = 0; i < octaveTracker.length; i++) {
+                const {note, octave} = octaveTracker[i];
+                playNote(note, octave, 0.5);
+                await new Promise(resolve => setTimeout(resolve, 500));
+            }
+            // Descending (skip the last root)
+            for (let i = octaveTracker.length - 2; i >= 0; i--) {
+                const {note, octave} = octaveTracker[i];
+                playNote(note, octave, 0.5);
+                await new Promise(resolve => setTimeout(resolve, 500));
+            }
+
+            button.textContent = '▶ Play Scale/Chord';
+            button.disabled = false;
+            isPlaying = false;
+        }
+
+        function getCurrentNotes() {
+            const key = document.getElementById('keySelect').value;
+            const scaleType = document.getElementById('scaleSelect').value;
+            
+            let notes = [];
+            
+            if (scaleType === 'majorScale') {
+                notes = [...scales.majorScales[key]];
+            } else if (scaleType === 'minorScale') {
+                notes = [...scales.minorScales[key]];
+            } else if (scaleType === 'majorChord') {
+                const scale = scales.majorScales[key];
+                notes = [scale[0], scale[2], scale[4]];
+            } else if (scaleType === 'minorChord') {
+                const scale = scales.minorScales[key];
+                notes = [scale[0], scale[2], scale[4]];
+            } else if (scaleType === 'majorPentatonic') {
+                notes = [...scales.majorPentatonics[key]];
+            } else if (scaleType === 'minorPentatonic') {
+                notes = [...scales.minorPentatonics[key]];
+            }
+            
+            return notes;
+        }
+
+        function drawPiano() {
+            const pianoDiv = document.getElementById('piano');
+            pianoDiv.innerHTML = '';
+
+            const key = document.getElementById('keySelect').value;
+            const scaleType = document.getElementById('scaleSelect').value;
+            const baseOctave = parseInt(document.getElementById('octaveSelect').value);
+
+            let selectedNotes = [];
+            let scaleName = '';
+
+            if (scaleType === 'majorScale') {
+                selectedNotes = [...scales.majorScales[key]];
+                scaleName = `${key} Major Scale`;
+            } else if (scaleType === 'minorScale') {
+                selectedNotes = [...scales.minorScales[key]];
+                scaleName = `${key} Minor Scale`;
+            } else if (scaleType === 'majorChord') {
+                const scale = scales.majorScales[key];
+                selectedNotes = [scale[0], scale[2], scale[4]];
+                scaleName = `${key} Major Chord`;
+            } else if (scaleType === 'minorChord') {
+                const scale = scales.minorScales[key];
+                selectedNotes = [scale[0], scale[2], scale[4]];
+                scaleName = `${key} Minor Chord`;
+            } else if (scaleType === 'majorPentatonic') {
+                selectedNotes = [...scales.majorPentatonics[key]];
+                scaleName = `${key} Major Pentatonic`;
+            } else if (scaleType === 'minorPentatonic') {
+                selectedNotes = [...scales.minorPentatonics[key]];
+                scaleName = `${key} Minor Pentatonic`;
+            }
+
+            // Ensure root is at the end for scales (not for chords)
+            if (!scaleType.includes('Chord')) {
+                const root = selectedNotes[0];
+                selectedNotes = selectedNotes.concat([root]);
+            }
+
+            document.getElementById('octaveDisplay').textContent = `${scaleName} - Base Octave: ${baseOctave}`;
+
+            const allKeys = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
+            const blackKeys = ['C#', 'D#', 'F#', 'G#', 'A#'];
+
+            const startOctave = baseOctave;
+            const octavesToShow = 3;
+
+            // Build a list of {note, octave} for the scale, starting from baseOctave
+            let scaleNotePositions = [];
+            let currentOctave = baseOctave;
+            let prevIndex = getNoteIndex(selectedNotes[0]);
+            selectedNotes.forEach((note, i) => {
+                const noteIndex = getNoteIndex(note);
+                if (i > 0 && noteIndex <= prevIndex) {
+                    currentOctave++;
+                }
+                scaleNotePositions.push({note: normalizeNote(note), octave: currentOctave});
+                prevIndex = noteIndex;
+            });
+
+            for (let octaveOffset = 0; octaveOffset < octavesToShow; octaveOffset++) {
+                const currentOctave = startOctave + octaveOffset;
+
+                allKeys.forEach((note, index) => {
+                    const whiteKey = document.createElement('div');
+                    whiteKey.className = 'white-key';
+                    whiteKey.dataset.note = note;
+                    whiteKey.dataset.octave = currentOctave;
+
+                    // Highlight if this {note, octave} is in scaleNotePositions
+                    let isRoot = false;
+                    let isInScale = false;
+                    scaleNotePositions.forEach((pos, i) => {
+                        if (normalizeNote(note) === pos.note && currentOctave === pos.octave) {
+                            isInScale = true;
+                            // Root is last note for scales, first for chords
+                            if ((i === scaleNotePositions.length - 1 && !scaleType.includes('Chord')) ||
+                                (i === 0 && scaleType.includes('Chord'))) {
+                                isRoot = true;
+                            }
+                        }
+                    });
+
+                    if (isRoot) {
+                        whiteKey.classList.add('root');
+                    } else if (isInScale) {
+                        whiteKey.classList.add('highlighted');
+                    }
+
+                    const octaveMarker = document.createElement('div');
+                    octaveMarker.className = 'octave-marker';
+                    octaveMarker.textContent = currentOctave;
+
+                    whiteKey.appendChild(octaveMarker);
+                    whiteKey.appendChild(document.createTextNode(note));
+                    whiteKey.addEventListener('click', () => playNote(note, currentOctave, 0.5));
+                    pianoDiv.appendChild(whiteKey);
+                });
+            }
+
+            for (let octaveOffset = 0; octaveOffset < octavesToShow; octaveOffset++) {
+                const currentOctave = baseOctave + octaveOffset;
+                const octaveStartPosition = octaveOffset * (allKeys.length * 50);
+
+                blackKeys.forEach((note, index) => {
+                    const blackKey = document.createElement('div');
+                    blackKey.className = 'black-key';
+                    blackKey.dataset.note = note;
+                    blackKey.dataset.octave = currentOctave;
+
+                    const positions = [1, 2, 4, 5, 6];
+                    const position = positions[index];
+
+                    let isRoot = false;
+                    let isInScale = false;
+                    scaleNotePositions.forEach((pos, i) => {
+                        if (normalizeNote(note) === pos.note && currentOctave === pos.octave) {
+                            isInScale = true;
+                            if ((i === scaleNotePositions.length - 1 && !scaleType.includes('Chord')) ||
+                                (i === 0 && scaleType.includes('Chord'))) {
+                                isRoot = true;
+                            }
+                        }
+                    });
+
+                    if (isRoot) {
+                        blackKey.classList.add('root');
+                    } else if (isInScale) {
+                        blackKey.classList.add('highlighted');
+                    }
+
+                    blackKey.textContent = note;
+                    blackKey.style.left = `${octaveStartPosition + position * 50 - 17}px`;
+                    blackKey.addEventListener('click', () => playNote(note, currentOctave, 0.5));
+                    pianoDiv.appendChild(blackKey);
+                });
+            }
+
+            updateInfoPanel(key, scaleType);
+        }
+
+        function updateInfoPanel(key, scaleType) {
+            const infoPanel = document.getElementById('infoPanel');
+            const majorScale = scales.majorScales[key];
+            const minorScale = scales.minorScales[key];
+            const majorPenta = scales.majorPentatonics[key];
+            const minorPenta = scales.minorPentatonics[key];
+            
+            infoPanel.innerHTML = `
+                <div class="info-row">
+                    <span class="info-label">${key} Major Scale:</span>
+                    <span class="info-value">${majorScale.join(', ')}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">${key} Minor Scale:</span>
+                    <span class="info-value">${minorScale.join(', ')}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">${key} Major Chord:</span>
+                    <span class="info-value">${majorScale[0]}, ${majorScale[2]}, ${majorScale[4]}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">${key} Minor Chord:</span>
+                    <span class="info-value">${minorScale[0]}, ${minorScale[2]}, ${minorScale[4]}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">${key} Major Pentatonic:</span>
+                    <span class="info-value">${majorPenta.join(', ')}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">${key} Minor Pentatonic:</span>
+                    <span class="info-value">${minorPenta.join(', ')}</span>
+                </div>
             `;
-            stockList.appendChild(listItem);
-          }
+        }
+
+        document.getElementById('keySelect').addEventListener('change', drawPiano);
+        document.getElementById('scaleSelect').addEventListener('change', drawPiano);
+        document.getElementById('octaveSelect').addEventListener('change', drawPiano);
+        
+        document.getElementById('playButton').addEventListener('click', () => {
+            const notes = getCurrentNotes();
+            const octave = parseInt(document.getElementById('octaveSelect').value);
+            const scaleType = document.getElementById('scaleSelect').value;
+            
+            if (scaleType.includes('Chord')) {
+                playChordNotes(notes, octave);
+            } else {
+                playScale(notes, octave);
+            }
         });
-      } catch (error) {
-        console.error('Error fetching stock data:', error);
-        document.querySelector('.loading').textContent = 'Failed to load stock data.';
-      }
-    }
+        
+        document.getElementById('darkModeToggle').addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            document.body.classList.toggle('light-mode');
+        });
 
-    fetchStockData();
-  </script>
-
+        drawPiano();
+    </script>
 </body>
 </html>
