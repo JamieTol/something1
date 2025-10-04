@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Blox Fruits Current Stock</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f9;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .container {
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+      width: 80%;
+      max-width: 600px;
+      text-align: center;
+    }
+    h1 {
+      color: #333;
+    }
+    #stockList {
+      list-style-type: none;
+      padding: 0;
+    }
+    #stockList li {
+      background: #e0e0e0;
+      margin: 10px 0;
+      padding: 10px;
+      border-radius: 5px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    #stockList li span {
+      font-weight: bold;
+    }
+    .loading {
+      font-size: 18px;
+      color: #888;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>Blox Fruits Current Stock</h1>
+    <p class="loading">Loading current stock...</p>
+    <ul id="stockList"></ul>
+  </div>
+
+  <script>
+    async function fetchStockData() {
+      try {
+        const response = await fetch('https://blox-fruits.fandom.com/wiki/Blox_Fruits_%22Stock%22');
+        const text = await response.text();
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(text, 'text/html');
+        const stockItems = doc.querySelectorAll('.wikitable tbody tr');
+
+        const stockList = document.getElementById('stockList');
+        stockList.innerHTML = ''; // Clear loading text
+
+        stockItems.forEach(row => {
+          const cells = row.querySelectorAll('td');
+          if (cells.length > 1) {
+            const fruitName = cells[0].textContent.trim();
+            const fruitPrice = cells[1].textContent.trim();
+            const fruitStatus = cells[2].textContent.trim();
+
+            const listItem = document.createElement('li');
+            listItem.innerHTML = `
+              <span>${fruitName}</span>
+              <span>${fruitPrice}</span>
+              <span>${fruitStatus}</span>
+            `;
+            stockList.appendChild(listItem);
+          }
+        });
+      } catch (error) {
+        console.error('Error fetching stock data:', error);
+        document.querySelector('.loading').textContent = 'Failed to load stock data.';
+      }
+    }
+
+    fetchStockData();
+  </script>
+
+</body>
+</html>
